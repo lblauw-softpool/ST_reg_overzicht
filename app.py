@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 
+# Brede layout
 st.set_page_config(layout="wide")
 
 st.title("📊 Regressietesten Viewer")
@@ -9,17 +10,21 @@ st.title("📊 Regressietesten Viewer")
 uploaded_file = st.file_uploader("Kies een Excel-bestand", type=["xlsx", "xls"])
 
 if uploaded_file is not None:
-    # Excel inladen
     df = pd.read_excel(uploaded_file)
 
-    # Instellingen
-    rows_per_page = 20
+    # Zoekbalk
+    query = st.text_input("🔍 Zoek in alle kolommen")
+    if query:
+        mask = df.apply(lambda row: row.astype(str).str.contains(query, case=False, na=False)).any(axis=1)
+        df = df[mask]
 
-    # Houd de huidige pagina bij in de sessie
+    # Dropdown voor aantal rijen per pagina
+    rows_per_page = st.selectbox("Aantal rijen per pagina", [3, 5, 10, 20, 50, 100], index=3)
+
+    # Huidige pagina
     if "page" not in st.session_state:
         st.session_state.page = 0
 
-    # Functies voor navigatie
     def next_page():
         if (st.session_state.page + 1) * rows_per_page < len(df):
             st.session_state.page += 1
@@ -28,16 +33,16 @@ if uploaded_file is not None:
         if st.session_state.page > 0:
             st.session_state.page -= 1
 
-    # Paginering berekenen
+    # Subset tonen
     start = st.session_state.page * rows_per_page
     end = start + rows_per_page
     subset = df.iloc[start:end]
 
-    # Weergave
-    st.write(f"Toont rijen {start+1} t/m {min(end, len(df))} van {len(df)}")
-    st.dataframe(subset, width="stretch")
+    # Bewerkbare tabel met groter lettertype
+    st.data_editor(subset, width="stretch", hide_index=True)
 
-    # Navigatieknoppen
+    # Navigatie
+    st.write(f"Toont rijen {start+1} t/m {min(end, len(df))} van {len(df)}")
     col1, col2 = st.columns(2)
     with col1:
         st.button("⬅️ Vorige", on_click=prev_page)
