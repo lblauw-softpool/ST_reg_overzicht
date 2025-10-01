@@ -3,16 +3,16 @@ import pandas as pd
 
 # Brede layout
 st.set_page_config(layout="wide")
-
+if
 st.title("📊 Regressietesten Viewer")
 
 # Bestand uploaden
-uploaded_file = st.file_uploader("Kies een Excel-bestand", type=["xlsx", "xls"])
+uploaded_file = st.file_uploader("Kies een Json-bestand", type=["json"])
 
 if uploaded_file is not None:
-    df = pd.read_excel(uploaded_file)
+    df = pd.read_json(uploaded_file)
 
-    # Zoekbalk
+    # Zoekbalk``
     query = st.text_input("🔍 Zoek in alle kolommen")
     if query:
         mask = df.apply(lambda row: row.astype(str).str.contains(query, case=False, na=False)).any(axis=1)
@@ -50,4 +50,4 @@ if uploaded_file is not None:
         st.button("Volgende ➡️", on_click=next_page)
 
 else:
-    st.info("⬆️ Upload hierboven een Excel-bestand om te beginnen.")
+    st.info("⬆️ Upload hierboven een .json-testcase-bestand om te beginnen.")
